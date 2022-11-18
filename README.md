@@ -14,10 +14,10 @@
       - 包括任何可执行的第三方包，如axios.get()
           - 使用axios请先安装依赖: `npm i axios`
           - 并在本js开头导入该包: `import axios from 'axios'`
-- 使用 ## 运行
+ - 使用 ## 运行
       - `## 1+2`
       - `## Math.random() > 0.5 ? '大于0.5' : '小于0.5'`
-- by 松坂砂糖
+ - by 松坂砂糖
 
 ## 安装
 
