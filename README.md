@@ -1,4 +1,4 @@
-# YunzaiV3 - 青云阁回复插件
+# YunzaiV3 - js运行插件
 
 **仅适配 YunzaiV3**
 
