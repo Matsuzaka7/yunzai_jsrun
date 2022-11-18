@@ -11,6 +11,11 @@ import { segment } from "oicq";
         - js函数执行   [1, 5, 6, 2].reduce((a,b) => a+b, 0)
         - 包括任何可执行的第三方包，如axios.get()
           - 使用axios请先下载: npm i axios
+          
+  使用本插件：
+      - ## 1+1
+      - ## Math.random() > 0.5 ? '大于0.5' ： '小于0.5'
+      - ## [1, 5, 6, 2].reduce((a,b) => a+b, 0)
 
   免责声明: 使用本插件造成的一切不可预料的后果由 插件使用者自己承担
     - by 砂糖
