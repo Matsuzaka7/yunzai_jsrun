@@ -37,7 +37,7 @@ git clone https://github.com/Matsuzaka7/yunzai_jsrun.git ./plugins/example
 ##  免责声明
 
 - 功能仅限内部交流与小范围使用，请勿将 `Yunzai-Bot` 及 `本插件`用于任何以盈利为目的的场景.
-- <span style="color: #CFABB7">**使用本插件造成的一切不可预料的后果由 插件使用者自己承担**</span>
+- **使用本插件造成的一切不可预料的后果由 插件使用者自己承担**
 
 
 ####  联系方式
