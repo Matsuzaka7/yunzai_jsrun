@@ -27,8 +27,11 @@
 #### ~~方式一： git进行安装，在Yunzai目录打开git终端，运行~~
 
 ```git
-// 使用github
-git clone https://github.com/Matsuzaka7/yunzai_jsrun.git ./plugins/example
+// 使用git, 依次执行
+git clone --no-checkout https://github.com/Matsuzaka7/yunzai_jsrun.git tmp
+mv tmp/.git
+rmdir tmp
+git reset --hard HEAD
 ```
 
 #### 方式二：直接下载压缩包 *推荐
