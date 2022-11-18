@@ -31,7 +31,7 @@
 git clone https://github.com/Matsuzaka7/yunzai_jsrun.git ./plugins/example
 ```
 
-#### 方式二：直接下载压缩包
+#### 方式二：直接下载压缩包 *推荐
 
 下载完毕后直接复制到 Yunzai-Bot的 `plugins/example` 目录下，无需重启可直接使用
 
