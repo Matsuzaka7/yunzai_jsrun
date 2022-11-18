@@ -44,12 +44,9 @@ export class example extends plugin {
         }
 
         let res = await eval(content);
-        // 如果是promise的实例就不返回
         // if (res && res.then) return
-        // 如不是对象类型就直接返回
         if (typeof res !== "object") {
           await e.reply(`${res}`.trim());
-          // 如果是对象类型，转为字符串对象后返回
         } else {
           if (res.data) {
             const MaxLength = 300
