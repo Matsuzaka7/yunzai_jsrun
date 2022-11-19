@@ -1,5 +1,5 @@
 import { segment } from "oicq";
-// import axios from 'axios'
+import axios from 'axios'
 
 /*
   jsrun - v0.3
