@@ -23,8 +23,8 @@ import { segment } from "oicq";
 */
 
 // 缓存信息
-let tempRes = ''
-let resCount = 0
+let _tempRes_ = ''
+let _resCount_ = 0
 
 // 设置与上一次的相应间隔 200ms
 let _tempTime_ = 0
@@ -57,7 +57,7 @@ export class example extends plugin {
 
         const blacklist = ['this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
                           'String', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
-                          'blacklist', 'plugin', '_e_event114514_', '_tempTime_', 'resCount'
+                          'blacklist', 'plugin', '_e_event114514_', '_tempTime_', '_resCount_', '_tempRes_'
                           ]
         const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
         if (findlist) {
@@ -65,7 +65,7 @@ export class example extends plugin {
         }
 
         let res = await eval(_text_content_);
-        if (JSON.stringify(res.data || res) == tempRes) throw new Error(oneAdd1)
+        if (JSON.stringify(res.data || res) == _tempRes_) throw new Error(oneAdd1)
         if (typeof res !== "object") {
           await _e_event114514_.reply(`${res}`.trim());
         } else {
@@ -77,12 +77,13 @@ export class example extends plugin {
               await _e_event114514_.reply(JSON.stringify(dataType, null, 4));
           }
         }
-        resCount = 0
-        tempRes = JSON.stringify(res.data || res)
+        _resCount_ = 0
+        _tempRes_ = JSON.stringify(res.data || res)
       } catch(error) {
-        if (error.message === oneAdd1) resCount++;
-        if (resCount <= 1) await _e_event114514_.reply('错误：' + error.message);
+        if (error.message === oneAdd1) _resCount_++;
+        if (_resCount_ <= 1) await _e_event114514_.reply('错误：' + error.message);
       }
     return true;
   }
 }
+
