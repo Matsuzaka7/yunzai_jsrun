@@ -65,7 +65,7 @@ export class example extends plugin {
         }
 
         let res = await eval(_text_content_);
-        if (JSON.stringify(res.data || res) == _tempRes_) throw new Error(oneAdd1)
+        if (JSON.stringify((res && res.data) || res) == _tempRes_) throw new Error(oneAdd1)
         if (typeof res !== "object") {
           await _e_event114514_.reply(`${res}`.trim());
         } else {
@@ -86,4 +86,3 @@ export class example extends plugin {
     return true;
   }
 }
-
