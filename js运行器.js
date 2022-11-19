@@ -57,7 +57,7 @@ export class example extends plugin {
 
         const blacklist = ['this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
                           'String', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
-                          'blacklist', 'plugin', '_e_event114514_', '_tempTime_', '_resCount_', '_tempRes_'
+                          'blacklist', 'plugin', '_e_event114514_', '_tempTime_', '_resCount_', '_tempRes_', 'Bot'
                           ]
         const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
         if (findlist) {
