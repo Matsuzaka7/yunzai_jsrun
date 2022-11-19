@@ -52,7 +52,7 @@ export class example extends plugin {
         const content = e.message[0].text.split("##")[1]
         if (content === undefined) return 
 
-        const blacklist = ['eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 'Promise']
+        const blacklist = ['this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 'Promise', 'blacklist']
         const findlist = blacklist.find(item => content.includes(item))
         if (findlist) {
           return e.reply('该关键词已禁用：' + findlist)
