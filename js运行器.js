@@ -27,11 +27,14 @@ let tempRes = ''
 let resCount = 0
 
 // 设置与上一次的相应间隔 200ms
-let tempTime = 0
-let resTime = 200
+let _tempTime_ = 0
+const resTime = 200
 
 // 重复的话术
 const oneAdd1 = '与上一次运行结果一致'
+
+// 限制字符长度
+const length = 199
 
 export class example extends plugin {
   constructor() {
@@ -43,40 +46,42 @@ export class example extends plugin {
   }
 
   //执行方法
-  async accept(e) {
-      if (Date.now() - tempTime < resTime) return 
-      tempTime = Date.now()
+  async accept(_e_event114514_) {
+      if (Date.now() - _tempTime_ < resTime) return 
+      _tempTime_ = Date.now()
       try {
-        if (e.message[0].type !== 'text') return
-        if (!e.message[0].text.includes('##')) return
-        const content = e.message[0].text.split("##")[1]
-        if (content === undefined) return 
+        if (_e_event114514_.message[0].type !== 'text') return
+        if (!_e_event114514_.message[0].text.includes('##')) return
+        const _text_content_ = _e_event114514_.message[0].text.split("##")[1]
+        if (_text_content_ === undefined) return 
 
-        const blacklist = ['this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 'Promise', 'blacklist', 'plugin', 'e']
-        const findlist = blacklist.find(item => content.includes(item))
+        const blacklist = ['this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
+                          'String', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
+                          'blacklist', 'plugin', '_e_event114514_', '_tempTime_'
+                          ]
+        const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
         if (findlist) {
-          return e.reply('该关键词已禁用：' + findlist)
+          return _e_event114514_.reply('该关键词已禁用：' + findlist)
         }
 
-        let res = await eval(content);
+        let res = await eval(_text_content_);
         if (JSON.stringify(res.data || res) == tempRes) throw new Error(oneAdd1)
-        const length = 199
         if (typeof res !== "object") {
-          await e.reply(`${res}`.trim());
+          await _e_event114514_.reply(`${res}`.trim());
         } else {
           const dataType = res.data || res;
           if (JSON.stringify(dataType).length > length) {
-               await e.reply(`字符长度超出${length}，进行截取`);
-               await e.reply(JSON.stringify(dataType, null, 4).substring(0, length) + '\n...');
+               await _e_event114514_.reply(`字符长度超出${length}，进行截取`);
+               await _e_event114514_.reply(JSON.stringify(dataType, null, 4).substring(0, length) + '\n...');
           } else {
-              await e.reply(JSON.stringify(dataType, null, 4));
+              await _e_event114514_.reply(JSON.stringify(dataType, null, 4));
           }
         }
         resCount = 0
         tempRes = JSON.stringify(res.data || res)
       } catch(error) {
         if (error.message === oneAdd1) resCount++;
-        if (resCount <= 1) await e.reply('错误：' + error.message);
+        if (resCount <= 1) await _e_event114514_.reply('错误：' + error.message);
       }
     return true;
   }
