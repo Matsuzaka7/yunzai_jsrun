@@ -2,7 +2,7 @@ import { segment } from "oicq";
 // import axios from 'axios'
 
 /*
-  jsrun - v0.3
+  jsrun - v0.4
   该插件在使用时可能会有不可预料的风险，请谨慎使用。包括但不限于：云崽崩溃，内存溢出
   该插件的作用：
       - 提供js运行的环境，可执行js代码
@@ -22,19 +22,22 @@ import { segment } from "oicq";
     - by 砂糖
 */
 
+
 // 缓存信息
 let _tempRes_ = ''
 let _resCount_ = 0
 
 // 设置与上一次的相应间隔 200ms
 let _tempTime_ = 0
-const resTime = 200
+const _resTime_ = 200
 
 // 重复的话术
-const oneAdd1 = '与上一次运行结果一致'
+const _oneTurn_ = '与上一次运行结果一致'
 
-// 限制字符长度
-const length = 199
+// 限制输入字符长度
+const _inputMax_length_ = 50
+// 限制输出字符长度
+const _outptMAx_length_ = 199
 
 export class example extends plugin {
   constructor() {
@@ -46,42 +49,43 @@ export class example extends plugin {
   }
 
   //执行方法
-  async accept(_e_event114514_) {
-      if (Date.now() - _tempTime_ < resTime) return 
+  async accept(_e_event_) {
+      let _failds_img_ = segment.image(`https://xiaobai.klizi.cn/API/ce/paa.php?qq=${_e_event_.user_id}`)
+      if (Date.now() - _tempTime_ < _resTime_) return 
       _tempTime_ = Date.now()
       try {
-        if (_e_event114514_.message[0].type !== 'text') return
-        if (!_e_event114514_.message[0].text.includes('##')) return
-        const _text_content_ = _e_event114514_.message[0].text.split("##")[1]
+        if (_e_event_.message[0].type !== 'text') return
+        if (!_e_event_.message[0].text.includes('##')) return
+        const _text_content_ = _e_event_.message[0].text.split("##")[1]
         if (_text_content_ === undefined) return 
+        if (_text_content_.length > _inputMax_length_) return _e_event_.reply(_failds_img_, true)
 
         const blacklist = ['this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
                           'String', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
-                          'blacklist', 'plugin', '_e_event114514_', '_tempTime_', '_resCount_', '_tempRes_', 'Bot'
+                          'blacklist', 'plugin', '_e_event_', '_tempTime_', '_resCount_', '_tempRes_', '_inputMax_length_', 'Bot'
                           ]
         const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
         if (findlist) {
-          return _e_event114514_.reply('该关键词已禁用：' + findlist)
+          return _e_event_.reply('该关键词已禁用：' + findlist)
         }
-
         let res = await eval(_text_content_);
-        if (JSON.stringify((res && res.data) || res) == _tempRes_) throw new Error(oneAdd1)
+        if (JSON.stringify((res && res.data) || res) == _tempRes_) throw new Error(_oneTurn_)
         if (typeof res !== "object") {
-          await _e_event114514_.reply(`${res}`.trim());
+          await _e_event_.reply(`${res}`.trim());
         } else {
-          const dataType = res.data || res;
-          if (JSON.stringify(dataType).length > length) {
-               await _e_event114514_.reply(`字符长度超出${length}，进行截取`);
-               await _e_event114514_.reply(JSON.stringify(dataType, null, 4).substring(0, length) + '\n...');
+          const dataType = (res && res.data) || res;
+          if (JSON.stringify(dataType).length > _outptMAx_length_) {
+               await _e_event_.reply(`字符长度超出${_outptMAx_length_}，进行截取`);
+               await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _outptMAx_length_) + '\n...');
           } else {
-              await _e_event114514_.reply(JSON.stringify(dataType, null, 4));
+              await _e_event_.reply(JSON.stringify(dataType, null, 4));
           }
         }
         _resCount_ = 0
-        _tempRes_ = JSON.stringify(res.data || res)
+        _tempRes_ = JSON.stringify((res && res.data) || res)
       } catch(error) {
-        if (error.message === oneAdd1) _resCount_++;
-        if (_resCount_ <= 1) await _e_event114514_.reply('错误：' + error.message);
+        if (error.message === _oneTurn_) _resCount_++;
+        if (_resCount_ <= 1) await _e_event_.reply('错误：' + error.message);
       }
     return true;
   }
