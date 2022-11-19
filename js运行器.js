@@ -67,7 +67,6 @@ export class example extends plugin {
           const dataType = res.data || res;
           if (JSON.stringify(dataType).length > length) {
                await e.reply(`字符长度超出${length}，进行截取`);
-               if (res.data) return 
                await e.reply(JSON.stringify(dataType, null, 4).substring(0, length) + '\n...');
           } else {
               await e.reply(JSON.stringify(dataType, null, 4));
