@@ -1,4 +1,4 @@
-# YunzaiV3 - js运行插件
+# YunzaiV3 - js运行插件 [高危]
 
 **仅适配 YunzaiV3**
 
