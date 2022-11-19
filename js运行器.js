@@ -2,7 +2,7 @@ import { segment } from "oicq";
 // import axios from 'axios'
 
 /*
-  jsrun - v0.4
+  jsrun - v0.4*
   该插件在使用时可能会有不可预料的风险，请谨慎使用。包括但不限于：云崽崩溃，内存溢出
   该插件的作用：
       - 提供js运行的环境，可执行js代码
