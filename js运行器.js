@@ -22,7 +22,7 @@ import { segment } from "oicq";
     - by 砂糖
 */
 
-// 缓存信息
+// 缓存消息
 let _tempRes_ = ''
 let _resCount_ = 0
 
@@ -34,7 +34,7 @@ const _resTime_ = 200
 const _oneTurn_ = '与上一次运行结果一致'
 
 // 限制输入字符长度
-const _inputMax_length_ = 100
+const _inputMax_length_ = 150
 // 限制输出字符长度
 const _outptMAx_length_ = 199
 
@@ -49,6 +49,7 @@ export class example extends plugin {
 
   //执行方法
   async accept(_e_event_) {
+      "use strict"
       let _failds_img_ = segment.image(`https://xiaobai.klizi.cn/API/ce/paa.php?qq=${_e_event_.user_id}`)
       if (Date.now() - _tempTime_ < _resTime_) return 
       _tempTime_ = Date.now()
@@ -68,8 +69,8 @@ export class example extends plugin {
         if (findlist) return _e_event_.reply('该关键词已禁用：' + findlist)
 
         let res = await eval(_text_content_);
-        if (JSON.stringify((res && res.data) || res) == _tempRes_) throw new Error(_oneTurn_)
         const dataType = (res && res.data) || res;
+        if (JSON.stringify(dataType) == _tempRes_) throw new Error(_oneTurn_)
         if (dataType === undefined) return await _e_event_.reply(`该表达式没有返回值： undefined`);
         if (JSON.stringify(dataType).length > _outptMAx_length_) {
              await _e_event_.reply(`字符长度超出${_outptMAx_length_}，进行截取`);
@@ -78,7 +79,7 @@ export class example extends plugin {
             await _e_event_.reply(JSON.stringify(dataType, null, 4));
         }
         _resCount_ = 0
-        _tempRes_ = JSON.stringify((res && res.data) || res)
+        _tempRes_ = JSON.stringify(dataType || res)
       } catch(error) {
         if (error.message === _oneTurn_) _resCount_++;
         if (_resCount_ <= 1) await _e_event_.reply('错误：' + error.message);
@@ -86,3 +87,4 @@ export class example extends plugin {
     return true;
   }
 }
+
