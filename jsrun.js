@@ -17,6 +17,8 @@ import { segment } from "oicq";
       - ## 1+1
       - ## Math.random() > 0.5 ? '大于0.5' ： '小于0.5'
       - ## [1, 5, 6, 2].reduce((a,b) => a+b, 0)
+      - ## 开启
+      - ## 关闭
 
   免责声明: 使用本插件造成的一切不可预料的后果由 插件使用者自己承担
     - by 砂糖
@@ -59,7 +61,6 @@ export class example extends plugin {
     })
   }
 
-  //执行方法
   accept = async (_e_event_) => {
     try {
       if (!_isValve_) return
