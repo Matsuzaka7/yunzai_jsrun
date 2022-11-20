@@ -61,8 +61,8 @@ export class example extends plugin {
         if (_text_content_.length > _inputMax_length_) return _e_event_.reply(_failds_img_, true)
 
         const blacklist = [
-          'this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
-          'String', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
+          'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
+          'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'keys', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
           'blacklist', 'plugin', '_e_event_', '_tempTime_', '_resCount_', '_tempRes_', '_inputMax_length_', 'Bot'
         ]
         const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
