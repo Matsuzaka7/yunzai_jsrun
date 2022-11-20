@@ -22,8 +22,6 @@ import { segment } from "oicq";
     - by 砂糖
 */
 
-
-
 // 缓存信息
 let _tempRes_ = ''
 let _resCount_ = 0
@@ -68,10 +66,11 @@ export class example extends plugin {
         ]
         const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
         if (findlist) return _e_event_.reply('该关键词已禁用：' + findlist)
-          
+
         let res = await eval(_text_content_);
         if (JSON.stringify((res && res.data) || res) == _tempRes_) throw new Error(_oneTurn_)
         const dataType = (res && res.data) || res;
+        if (dataType === undefined) return await _e_event_.reply(`该表达式没有返回值： undefined`);
         if (JSON.stringify(dataType).length > _outptMAx_length_) {
              await _e_event_.reply(`字符长度超出${_outptMAx_length_}，进行截取`);
              await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _outptMAx_length_) + '\n...');
@@ -87,4 +86,3 @@ export class example extends plugin {
     return true;
   }
 }
-
