@@ -2,7 +2,7 @@ import { segment } from "oicq";
 // import axios from 'axios'
 
 /*
-  jsrun - v0.4*
+  jsrun - v0.5*
   该插件在使用时可能会有不可预料的风险，请谨慎使用。包括但不限于：云崽崩溃，内存溢出
   该插件的作用：
       - 提供js运行的环境，可执行js代码
@@ -23,6 +23,7 @@ import { segment } from "oicq";
 */
 
 
+
 // 缓存信息
 let _tempRes_ = ''
 let _resCount_ = 0
@@ -35,7 +36,7 @@ const _resTime_ = 200
 const _oneTurn_ = '与上一次运行结果一致'
 
 // 限制输入字符长度
-const _inputMax_length_ = 50
+const _inputMax_length_ = 100
 // 限制输出字符长度
 const _outptMAx_length_ = 199
 
@@ -61,26 +62,21 @@ export class example extends plugin {
         if (_text_content_.length > _inputMax_length_) return _e_event_.reply(_failds_img_, true)
 
         const blacklist = [
-          'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
+          'this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
           'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'keys', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
           'blacklist', 'plugin', '_e_event_', '_tempTime_', '_resCount_', '_tempRes_', '_inputMax_length_', 'Bot'
         ]
         const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
-        if (findlist) {
-          return _e_event_.reply('该关键词已禁用：' + findlist)
-        }
+        if (findlist) return _e_event_.reply('该关键词已禁用：' + findlist)
+          
         let res = await eval(_text_content_);
         if (JSON.stringify((res && res.data) || res) == _tempRes_) throw new Error(_oneTurn_)
-        if (typeof res !== "object") {
-          await _e_event_.reply(`${res}`.trim());
+        const dataType = (res && res.data) || res;
+        if (JSON.stringify(dataType).length > _outptMAx_length_) {
+             await _e_event_.reply(`字符长度超出${_outptMAx_length_}，进行截取`);
+             await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _outptMAx_length_) + '\n...');
         } else {
-          const dataType = (res && res.data) || res;
-          if (JSON.stringify(dataType).length > _outptMAx_length_) {
-               await _e_event_.reply(`字符长度超出${_outptMAx_length_}，进行截取`);
-               await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _outptMAx_length_) + '\n...');
-          } else {
-              await _e_event_.reply(JSON.stringify(dataType, null, 4));
-          }
+            await _e_event_.reply(JSON.stringify(dataType, null, 4));
         }
         _resCount_ = 0
         _tempRes_ = JSON.stringify((res && res.data) || res)
@@ -91,3 +87,4 @@ export class example extends plugin {
     return true;
   }
 }
+
