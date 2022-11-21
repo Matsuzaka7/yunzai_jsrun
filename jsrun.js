@@ -61,7 +61,7 @@ export class example extends plugin {
     })
   }
 
-  accept = async (_e_event_) => {
+  async accept (_e_event_) {
     try {
       if (!_isValve_) return
       let _failds_img_ = segment.image(`https://xiaobai.klizi.cn/API/ce/paa.php?qq=${_e_event_.user_id}`)
@@ -77,7 +77,7 @@ export class example extends plugin {
       if (_text_content_.length > _inputMax_length_) return _e_event_.reply(_failds_img_, true)
 
       const blacklist = [
-        '', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
+        'this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
         'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'keys', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
         'blacklist', 'plugin', '_e_event_', '_tempTime_', '_resCount_', '_tempRes_', '_inputMax_length_', '_isValve_', 'Bot'
       ]
@@ -88,9 +88,10 @@ export class example extends plugin {
       const dataType = (res && res.data) || res;
       if (JSON.stringify(dataType) == _tempRes_) throw new Error(_oneTurn_)
       if (dataType === undefined) return await _e_event_.reply(`该表达式没有返回值： undefined`);
+      
       if (JSON.stringify(dataType).length > _outptMAx_length_) {
-           await _e_event_.reply(`字符长度超出${_outptMAx_length_}，进行截取`);
-           await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _outptMAx_length_) + '\n...');
+          await _e_event_.reply(`字符长度超出${_outptMAx_length_}，进行截取`);
+          await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _outptMAx_length_) + '\n...');
       } else {
           await _e_event_.reply(JSON.stringify(dataType, null, 4));
       }
@@ -104,7 +105,7 @@ export class example extends plugin {
     return true;
   }
 
-  open = async (_e_event_) => {
+  async async (_e_event_) {
     if (_isValve_ === true) return
     if (_e_event_.isMaster) {
       _isValve_ = true
@@ -113,7 +114,7 @@ export class example extends plugin {
     return true
   }
 
-  close = async (_e_event_) => {
+  async close (_e_event_) {
     if (_isValve_ === false) return
     if (_e_event_.isMaster) {
       _isValve_ = false
