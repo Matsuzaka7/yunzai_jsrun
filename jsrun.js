@@ -105,7 +105,7 @@ export class example extends plugin {
     return true;
   }
 
-  async async (_e_event_) {
+  async open (_e_event_) {
     if (_isValve_ === true) return
     if (_e_event_.isMaster) {
       _isValve_ = true
