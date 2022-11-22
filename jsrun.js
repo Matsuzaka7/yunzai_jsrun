@@ -29,7 +29,7 @@ let _isValve_ = true
 let _tempRes_ = ''
 let _resCount_ = 0
 
-// 设置与上一次的相应间隔 200ms
+// 设置与上一次的响应间隔 200ms
 let _tempTime_ = 0
 let _resTime_ = 200
 
@@ -37,6 +37,9 @@ let _resTime_ = 200
 let _inputMax_length_ = 150
 // 限制输出字符长度
 let _outptMax_length_ = 199
+
+// 回复消息是否引用执行消息
+let _message_at_ = false
 
 // 重复的话术
 const _oneTurn_ = '与上一次运行结果一致'
@@ -46,7 +49,7 @@ export class example extends plugin {
     super({
       name: 'js运行工具',
       event: 'message',
-      priority: 500,
+      priority: 100,
       rule: [
         {
           reg: '^##( *)开启|关闭$',
@@ -59,7 +62,12 @@ export class example extends plugin {
           permiseeion: 'master'
         },
         {
-          reg: '^##( *)帮助$',
+          reg: '^##( *)设置引用回复(开启|关闭)$',
+          fnc: 'setting',
+          permiseeion: 'master'
+        },
+        {
+          reg: '^##( *)(帮助|设置)$',
           fnc: 'help'
         }
       ]
@@ -78,70 +86,79 @@ export class example extends plugin {
 
       const _text_content_ = _e_event_.message[0].text.split("##")[1]
       if (_text_content_ === undefined) return 
-      if (_text_content_.length > _inputMax_length_) return _e_event_.reply(_failds_img_, true)
+      if (_text_content_.length > _inputMax_length_) return _e_event_.reply(_failds_img_, _message_at_)
 
-      const settinglist = ['开启', '关闭', '帮助', '设置输入字数', '设置输出字数' ,'设置响应间隔']
+      const settinglist = ['开启', '关闭', '帮助', '设置输入字数', '设置输出字数' ,'设置响应间隔', '设置引用回复']
       if (settinglist.find(item => _text_content_.includes(item))) return
 
       const blacklist = [
         'this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
         'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'keys', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
-        'blacklist', 'settinglist', 'plugin', '_e_event_', '_tempTime_', '_resCount_', '_tempRes_', '_inputMax_length_', '_outptMax_length_', '_isValve_', 'Bot',
+        'blacklist', 'settinglist', 'plugin', '_e_event_', '_tempTime_', '_resCount_', '_tempRes_', '_inputMax_length_', '_outptMax_length_', '_isValve_', '_message_at_', 'Bot',
       ]
       const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
-      if (findlist) return _e_event_.reply('该关键词已禁用：' + findlist, true)
+      if (findlist) return _e_event_.reply('该关键词已禁用：' + findlist, _message_at_)
 
       let res = await eval(_text_content_);
       const dataType = (res && res.data) || res;
       if (JSON.stringify(dataType) == _tempRes_) throw new Error(_oneTurn_)
-      if (dataType === undefined) return await _e_event_.reply(`该表达式没有返回值： undefined`, true);
-      
+      if (dataType === undefined) return await _e_event_.reply(`该表达式没有返回值： undefined`, _message_at_);
+
       if (JSON.stringify(dataType).length > _outptMax_length_) {
-          await _e_event_.reply(`字符长度超出${_outptMax_length_}，进行截取`);
-          await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _outptMax_length_) + '\n...', true);
+        await _e_event_.reply(`字符长度超出${_outptMax_length_}，进行截取`);
+        typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`.substring(0, _outptMax_length_) + '...', _message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _outptMax_length_) + '...', _message_at_);
       } else {
-          await _e_event_.reply(JSON.stringify(dataType, null, 4), true);
+        typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`, _message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4), _message_at_)
       }
 
       _resCount_ = 0
       _tempRes_ = JSON.stringify(dataType || res)
     } catch(error) {
       if (error.message === _oneTurn_) _resCount_++;
-      if (_resCount_ <= 1) await _e_event_.reply('错误：' + error.message, true);
+      if (_resCount_ <= 1) await _e_event_.reply('错误：' + error.message, _message_at_);
     }
     return true;
   }
 
   async setting (_e_event_) {
     const _text_content_ = _e_event_.message[0].text.split("##")[1].trim()
-    if (_text_content_.includes('开启')) {
-      if (_isValve_ === true) return _e_event_.reply('# 当前已开启', true);
+    
+    if (_text_content_.includes('设置引用回复')) {
+      const flag = _text_content_.split('设置引用回复')[1]
+      if (flag.trim() === '开启') {
+        _message_at_ = true
+      } else if (flag.trim() === '关闭') {
+        _message_at_ = false
+      }
+      await _e_event_.reply(`# 引用回复：已${_message_at_ ? '开启' : '关闭'}`);
+    } else if (_text_content_.includes('开启')) {
+      if (_isValve_ === true) return _e_event_.reply('# 当前已开启', _message_at_);
       _isValve_ = true
-      await _e_event_.reply('# 已开启', true);
+      await _e_event_.reply('# 已开启', _message_at_);
     } else if (_text_content_.includes('关闭')) {
       if (_isValve_ === false) return
       _isValve_ = false
-      await _e_event_.reply('# 已关闭', true);
+      await _e_event_.reply('# 已关闭', _message_at_);
     } else if (_text_content_.includes('设置输入字数')) {
       if (!_isValve_) return
       const number = _text_content_.split('设置输入字数')[1]
-      if (typeof +number !== 'number' || +number < 1) return _e_event_.reply('请输有效的数字', true);
+      if (typeof +number !== 'number' || +number < 1) return _e_event_.reply('请输有效的数字', _message_at_);
       _inputMax_length_ = +number
-      _e_event_.reply('# 已设置最大输入字数：' + _inputMax_length_, true);
+      _e_event_.reply('# 已设置最大输入字数：' + _inputMax_length_, _message_at_);
     } else if (_text_content_.includes('设置输出字数')) {
       if (!_isValve_) return
       const number = _text_content_.split('设置输出字数')[1]
-      if (typeof +number !== 'number' || +number < 1) return _e_event_.reply('请输有效的数字', true);
+      if (typeof +number !== 'number' || +number < 1) return _e_event_.reply('请输有效的数字', _message_at_);
       _outptMax_length_ = +number
-      _e_event_.reply('# 已设置最大输出字数：' + _outptMax_length_, true);
+      _e_event_.reply('# 已设置最大输出字数：' + _outptMax_length_, _message_at_);
     } else if (_text_content_.includes('设置响应间隔')) {
       if (!_isValve_) return
       const number = _text_content_.split('设置响应间隔')[1]
-      if (typeof +number !== 'number' || +number < 1) return _e_event_.reply('请输有效的数字', true);
+      if (typeof +number !== 'number' || +number < 1) return _e_event_.reply('请输有效的数字', _message_at_);
       _resTime_ = +number
-      _e_event_.reply('# 已设置响应间隔：' + _resTime_, true);
+      _e_event_.reply('# 已设置响应间隔：' + _resTime_, _message_at_);
     }
-    return true
+    return true;
   }
 
   async help (_e_event_) {
@@ -150,5 +167,3 @@ export class example extends plugin {
     return true
   }
 }
-
-
