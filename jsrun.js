@@ -2,7 +2,7 @@ import { segment } from "oicq";
 // import axios from 'axios'
 
 /*
-  jsrun - v0.8*
+  jsrun - v0.8* 
   该插件在使用时可能会有不可预料的风险，请谨慎使用。包括但不限于：云崽崩溃，内存溢出
   该插件的作用：
       - 提供js运行的环境，可执行js代码
@@ -50,8 +50,20 @@ const _setting_ = {
 const _configObjects_ = [
   { tier: 1, keyTerm: [{key: '_isValve_', value: '开启'}, {key: '_isValve_', value: '关闭'}] },
   { tier: 2, keyTerm: [{key: '_inputMax_length_', value: '输入字数'}, {key: '_outptMax_length_', value: '输出字数'}, {key: '_resTime_', value:'响应间隔'}] },
-  { tier: 3, keyTerm: [{key: '_message_at_', value: '引用回复'}, {key: '_isShield_', value: '屏蔽词'}, {key: '_isIntercept_', value:'重复拦截'}]}
+  { tier: 3, keyTerm: [{key: '_message_at_', value: '引用回复'}, {key: '_isShield_', value: '屏蔽词'}, {key: '_isIntercept_', value:'重复拦截'}] }
 ]
+
+// 生成正则, 请勿随意修改该函数，如需修改前缀 ##，请使用: valueToRegExp(1, '前缀', '后缀')
+const valueToRegExp = (id, startSymbol ,endSymbol) => {
+  let list = null
+  for (let i = 0; i < _configObjects_.length; i++) {
+    let item = _configObjects_[i]
+    if (item.tier === id){
+      list = item.keyTerm.map(val => val.value)
+    } else throw new Error('未找到对应配置，请检查传入的第一个值是否存在')
+  }
+  return new RegExp(`${startSymbol || '##( *)'}${list.join("|")}${endSymbol || ''}$`)
+}
 
 export class example extends plugin {
   constructor() {
@@ -61,17 +73,17 @@ export class example extends plugin {
       priority: 100,
       rule: [
         {
-          reg: '^##( *)开启|关闭$',
+          reg: valueToRegExp(1),
           fnc: 'setting',
           permiseeion: 'master'
         },
         {
-          reg: '^##( *)输入字数|输出字数|响应间隔([0-9]*)$',
+          reg: valueToRegExp(2, '([0-9]*)')
           fnc: 'setting',
           permiseeion: 'master'
         },
         {
-          reg: '^##( *)引用回复|屏蔽词|重复拦截(开启|关闭)$',
+          reg: valueToRegExp(3, '(开启|关闭)'),
           fnc: 'setting',
           permiseeion: 'master'
         },
