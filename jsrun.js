@@ -23,33 +23,35 @@ import { segment } from "oicq";
     - by 砂糖
 */
 
-// 程序开关
-let _isValve_ = true
+const _setting_ = {
+  // 程序开关
+  _isValve_: true,
+  // 屏蔽词开关
+  _isShield_: true,
+  // 运行结果一致时是否拦截
+  _isIntercept_: true,
+  // 回复消息是否引用执行消息
+  _message_at_: false,
+  // 缓存消息
+  _tempRes_: '',
+  _errCount_: 0,
+  // 设置与上一次的响应间隔 200ms
+  _tempTime_: 0,
+  _resTime_: 200,
+  // 限制输入字符长度
+  _inputMax_length_: 150,
+  // 限制输出字符长度
+  _outptMax_length_: 199,
+  // 重复的话术
+  _oneTurn_: '与上一次运行结果一致'
+}
 
-// 屏蔽词开关
-let _isShield_ = true
-
-// 运行结果一致时是否拦截
-let _isIntercept_ = true
-
-// 回复消息是否引用执行消息
-let _message_at_ = false
-
-// 缓存消息
-let _tempRes_ = ''
-let _errCount_ = 0
-
-// 设置与上一次的响应间隔 200ms
-let _tempTime_ = 0
-let _resTime_ = 200
-
-// 限制输入字符长度
-let _inputMax_length_ = 150
-// 限制输出字符长度
-let _outptMax_length_ = 199
-
-// 重复的话术
-const _oneTurn_ = '与上一次运行结果一致'
+// 请勿修改，如需删除_setting_中的某项配置，请一并将_configObjects_对应的配置删除
+const _configObjects_ = [
+  { tier: 1, keyTerm: [{key: '_isValve_', value: '开启'}, {key: '_isValve_', value: '关闭'}] },
+  { tier: 2, keyTerm: [{key: '_inputMax_length_', value: '输入字数'}, {key: '_outptMax_length_', value: '输出字数'}, {key: '_resTime_', value:'响应间隔'}] },
+  { tier: 3, keyTerm: [{key: '_message_at_', value: '引用回复'}, {key: '_isShield_', value: '屏蔽词'}, {key: '_isIntercept_', value:'重复拦截'}]}
+]
 
 export class example extends plugin {
   constructor() {
@@ -83,113 +85,92 @@ export class example extends plugin {
 
   async accept (_e_event_) {
     try {
-      if (!_isValve_) return
+      if (!_setting_._isValve_) return
       let _failds_img_ = segment.image(`https://xiaobai.klizi.cn/API/ce/paa.php?qq=${_e_event_.user_id}`)
-      if (Date.now() - _tempTime_ < _resTime_) return 
-      _tempTime_ = Date.now()
+      if (Date.now() - _setting_._tempTime_ < _setting_._resTime_) return 
+      _setting_._tempTime_ = Date.now()
 
       if (_e_event_.message[0].type !== 'text') return
       if (!_e_event_.message[0].text.includes('##')) return
 
       const _text_content_ = _e_event_.message[0].text.split("##")[1]
       if (_text_content_ === undefined) return 
-      if (_text_content_.length > _inputMax_length_) return _e_event_.reply(_failds_img_, true)
 
-      const settinglist = ['开启', '关闭', '帮助', '输入字数', '输出字数' ,'响应间隔', '引用回复', '屏蔽词', '重复拦截']
-      if (settinglist.find(item => _text_content_.includes(item))) return
+      const _setting_list = ['开启', '关闭', '帮助', '输入字数', '输出字数' ,'响应间隔', '引用回复', '屏蔽词', '重复拦截']
+      if (_setting_list.find(item => _text_content_.includes(item))) return
+
+      if (_text_content_.length > _setting_._inputMax_length_) return _e_event_.reply(_failds_img_, true)
 
       const blacklist = [
         'this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
-        'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'keys', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
-        'blacklist', 'settinglist', 'plugin', '_e_event_', '_tempTime_', '_errCount_', '_tempRes_', '_inputMax_length_', '_outptMax_length_', '_isValve_', '_message_at_', '_isShield_', '_isIntercept_', 'Bot',
+        'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'values', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
+        'blacklist', '_setting_list', 'plugin', '_e_event_', '_setting_', '_configObjects_', 'Bot',
       ]
       const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
-      if (_isShield_ && findlist) return _e_event_.reply('该关键词已禁用：' + findlist, _message_at_)
+      if (_setting_._isShield_ && findlist) return _e_event_.reply('该关键词已禁用：' + findlist, _setting_._message_at_)
 
       let res = await eval(_text_content_);
       const dataType = (res && res.data) || res;
-      if (_isIntercept_ && JSON.stringify(dataType) == _tempRes_) throw new Error(_oneTurn_);
-      if (dataType === undefined) return await _e_event_.reply(`该表达式没有返回值： undefined`, _message_at_);
+      if (_setting_._isIntercept_ && JSON.stringify(dataType) == _setting_._tempRes_) throw new Error(_setting_._oneTurn_);
+      if (dataType === undefined) return await _e_event_.reply(`该表达式没有返回值： undefined`, _setting_._message_at_);
 
-      if (JSON.stringify(dataType).length > _outptMax_length_) {
-        await _e_event_.reply(`字符长度超出${_outptMax_length_}，进行截取`);
-        typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`.substring(0, _outptMax_length_) + '...', _message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _outptMax_length_) + '...', _message_at_);
+      if (JSON.stringify(dataType).length > _setting_._outptMax_length_) {
+        await _e_event_.reply(`字符长度超出${_setting_._outptMax_length_}，进行截取`);
+        typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`.substring(0, _setting_._outptMax_length_) + '...', _setting_._message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _setting_._resTime_) + '...', _setting_._message_at_);
       } else {
-        typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`, _message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4), _message_at_)
+        typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`, _setting_._message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4), _setting_._message_at_)
       }
 
-      _errCount_ = 0
-      _tempRes_ = JSON.stringify(dataType || res)
+      _setting_._errCount_ = 0
+      _setting_._tempRes_ = JSON.stringify(dataType || res)
     } catch(error) {
-      if (error.message === _oneTurn_) _errCount_++;
-      if (_errCount_ <= 1) await _e_event_.reply('错误：' + error.message, _message_at_);
+      if (error.message === _setting_._oneTurn_) _setting_._errCount_++;
+      if (_setting_._errCount_ <= 1) await _e_event_.reply('错误：' + error.message, _setting_._message_at_);
     }
     return true;
   }
 
   async setting (_e_event_) {
     const _text_content_ = _e_event_.message[0].text.split("##")[1].trim()
-    
-    if (_text_content_.includes('引用回复')) {
-      const flag = _text_content_.split('引用回复')[1]
-      if (flag.trim() === '开启') {
-        _message_at_ = true
-      } else if (flag.trim() === '关闭') {
-        _message_at_ = false
+    _configObjects_.forEach(item => {
+      if (item.tier === 1) {
+        if (_text_content_ === item.keyTerm[0].value) {
+          if (_setting_[item.keyTerm[0].key] === true) return _e_event_.reply('# 当前已开启', _setting_._message_at_);
+          _setting_[item.keyTerm[0].key] = true
+          _e_event_.reply('# 已开启', _setting_._message_at_);
+        }
+        if (_text_content_ === item.keyTerm[1].value) {
+          _setting_[item.keyTerm[1].key] = false
+          _e_event_.reply('# 已关闭', _setting_._message_at_);
+        }
+      } else if (item.tier === 2) {
+        if (!_setting_._isValve_) return
+        item.keyTerm.forEach(keyTermItem => {
+          if (_text_content_.includes(keyTermItem.value)) {
+            const number = _text_content_.split(keyTermItem.value)[1]
+            if (!isNaN(+number) && +number > -1) {
+              _setting_[keyTermItem.key] = +number
+              _e_event_.reply(`# 已设置${keyTermItem.value}：` + _setting_[keyTermItem.key], _setting_._message_at_);
+            } else {
+              _e_event_.reply('请输有效的数字', _setting_._message_at_);
+            }
+          }
+        })
+      } else if (item.tier === 3) {
+        if (!_setting_._isValve_) return
+        item.keyTerm.forEach(keyTermItem => {
+          if (_text_content_.includes(keyTermItem.value)) {
+            const flag = _text_content_.split(keyTermItem.value)[1].trim()
+            if (flag === '开启') {
+              _setting_[keyTermItem.key] = true
+            } else if (flag === '关闭') {
+              _setting_[keyTermItem.key] = false
+            }
+            _e_event_.reply(`# ${keyTermItem.value}：已${_setting_[keyTermItem.key] ? '开启' : '关闭'}`)
+          }
+        })
       }
-      await _e_event_.reply(`# 引用回复：已${_message_at_ ? '开启' : '关闭'}`);
-    } else if (_text_content_.includes('屏蔽词')) {
-      const flag = _text_content_.split('屏蔽词')[1]
-      if (flag.trim() === '开启') {
-        _isShield_ = true
-      } else if (flag.trim() === '关闭') {
-        _isShield_ = false
-      }
-      await _e_event_.reply(`# 屏蔽词：已${_isShield_ ? '开启' : '关闭'}`)
-    } else if (_text_content_.includes('重复拦截')) {
-      const flag = _text_content_.split('重复拦截')[1]
-      if (flag.trim() === '开启') {
-        _isIntercept_ = true
-      } else if (flag.trim() === '关闭') {
-        _isIntercept_ = false
-      }
-      await _e_event_.reply(`# 重复拦截：已${_isIntercept_ ? '开启' : '关闭'}`)
-    } else if (_text_content_.includes('开启')) {
-      if (_isValve_ === true) return _e_event_.reply('# 当前已开启', _message_at_);
-      _isValve_ = true
-      await _e_event_.reply('# 已开启', _message_at_);
-    } else if (_text_content_.includes('关闭')) {
-      if (_isValve_ === false) return
-      _isValve_ = false
-      await _e_event_.reply('# 已关闭', _message_at_);
-    } else if (_text_content_.includes('输入字数')) {
-      if (!_isValve_) return
-      const number = _text_content_.split('输入字数')[1]
-      if (!isNaN(+number) && +number > -1) {
-        _inputMax_length_ = +number
-        _e_event_.reply('# 已设置最大输入字数：' + _inputMax_length_, _message_at_);
-      } else {
-        _e_event_.reply('请输有效的数字', _message_at_);
-      }
-    } else if (_text_content_.includes('输出字数')) {
-      if (!_isValve_) return
-      const number = _text_content_.split('输出字数')[1]
-      if (!isNaN(+number) && +number > -1) {
-        _outptMax_length_ = +number
-        _e_event_.reply('# 已设置最大输出字数：' + _outptMax_length_, _message_at_);
-      } else {
-        _e_event_.reply('请输有效的数字', _message_at_);
-      }
-    } else if (_text_content_.includes('响应间隔')) {
-      if (!_isValve_) return
-      const number = _text_content_.split('响应间隔')[1]
-      if (!isNaN(+number) && +number > -1) {
-        _resTime_ = +number
-        _e_event_.reply('# 已设置响应间隔：' + _resTime_, _message_at_);
-      } else {
-        _e_event_.reply('请输有效的数字', _message_at_);
-      }
-    }
+    })
     return true;
   }
 
