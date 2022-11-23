@@ -96,8 +96,8 @@ export class example extends plugin {
       const _text_content_ = _e_event_.message[0].text.split("##")[1]
       if (_text_content_ === undefined) return 
 
-      const _setting_list = ['开启', '关闭', '帮助', '输入字数', '输出字数' ,'响应间隔', '引用回复', '屏蔽词', '重复拦截']
-      if (_setting_list.find(item => _text_content_.includes(item))) return
+      const jump = _configObjects_.some(item => item.keyTerm.some(list => _text_content_.includes(list.value)))
+      if (jump) return
 
       if (_text_content_.length > _setting_._inputMax_length_) return _e_event_.reply(_failds_img_, true)
 
