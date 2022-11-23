@@ -60,12 +60,12 @@ const valueToRegExp = (id, startSymbol ,endSymbol) => {
     let item = _configObjects_[i]
     if (item.tier === id){
       list = item.keyTerm.map(val => val.value)
-    } else throw new Error('未找到对应配置，请检查传入的第一个值是否存在')
+    } 
   }
   return new RegExp(`${startSymbol || '##( *)'}${list.join("|")}${endSymbol || ''}$`)
 }
 
-export class example extends plugin {
+export class jsrun extends plugin {
   constructor() {
     super({
       name: 'js运行工具',
@@ -75,17 +75,17 @@ export class example extends plugin {
         {
           reg: valueToRegExp(1),
           fnc: 'setting',
-          permiseeion: 'master'
+          permission: 'master'
         },
         {
-          reg: valueToRegExp(2, '([0-9]*)')
+          reg: valueToRegExp(2, '([0-9]*)'),
           fnc: 'setting',
-          permiseeion: 'master'
+          permission: 'master'
         },
         {
           reg: valueToRegExp(3, '(开启|关闭)'),
           fnc: 'setting',
-          permiseeion: 'master'
+          permission: 'master'
         },
         {
           reg: '^##( *)(帮助|设置)$',
@@ -192,3 +192,4 @@ export class example extends plugin {
     return true
   }
 }
+
