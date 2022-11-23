@@ -97,7 +97,7 @@ export class example extends plugin {
       if (_text_content_ === undefined) return 
 
       const jump = _configObjects_.some(item => item.keyTerm.some(list => _text_content_.includes(list.value)))
-      if (jump) return
+      if (jump || _text_content_.includes('帮助') || _text_content_.includes('设置')) return
 
       if (_text_content_.length > _setting_._inputMax_length_) return _e_event_.reply(_failds_img_, true)
 
