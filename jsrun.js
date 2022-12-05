@@ -15,7 +15,7 @@ import fs from "fs";
 */
 
 const config = {
-  timeout: 5000,
+  timeout: 2000,
   // windowsHide: true
   windowsVerbatimArguments: true
 }
