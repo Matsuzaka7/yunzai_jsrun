@@ -8,7 +8,7 @@ import fs from "fs";
       - 将没有任何限制，并且可以导入模块，被恶意使用可能会造成格盘等情况，使用方式与v0.8大致相同，会有略微区别
         - 使用 `## xxx` 运行
       - 并且可以操作 cmd
-        - 使用 `cmd xxx` 运行
+        - 使用 `#cmd xxx` 运行
     - 如无法承担后果请下载 v0.8版本：https://github.com/Matsuzaka7/yunzai_jsrun/tree/v0.8
 
     - by 松坂砂糖
@@ -22,7 +22,11 @@ export class jsrun extends plugin {
       priority: 100,
       rule: [
         {
-          reg: "^#*cmd(.*)$",
+          reg: "^##(.*)",
+          fnc: 'run'
+        },
+        {
+          reg: "^#*cmd(.*)",
           fnc: 'cmd',
           permission: 'master'
         },
@@ -30,10 +34,8 @@ export class jsrun extends plugin {
     })
   }
 
-  async accept (e) {
+  async run (e) {
     try {
-      if (e.message[0].type !== 'text') return
-      if (!e.message[0].text.includes('##')) return
       const content = e.message[0].text.split("##")[1]
       const path = "./operation.js";
       fs.writeFile(path, content, (err, data) => {
@@ -60,6 +62,7 @@ export class jsrun extends plugin {
         e.reply(stdout)
       }
     });
+    return true;
   }
 
 }
