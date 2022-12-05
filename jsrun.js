@@ -60,12 +60,13 @@ export class jsrun extends plugin {
   }
 
   async cmd (e) {
-    const text = e.message[0].text.split("cmd")[1]
-    exec(text, (err, stdout, stderr) => {
+    const content = e.message[0].text.split("cmd")[1]
+    exec(content, { encoding: '' }, (err, stdout, stderr) => {
+      const GBK = new TextDecoder("GBK")
       if (err) {
         e.reply(String(err.message))
       } else {
-        e.reply(stdout)
+        e.reply(GBK.decode(stdout))
       }
     });
     return true;
