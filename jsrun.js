@@ -14,6 +14,12 @@ import fs from "fs";
     - by 松坂砂糖
 */
 
+const config = {
+  timeout: 5000,
+  // windowsHide: true
+  windowsVerbatimArguments: true
+}
+    
 export class jsrun extends plugin {
   constructor() {
     super({
@@ -39,7 +45,7 @@ export class jsrun extends plugin {
       const content = e.message[0].text.split("##")[1]
       const path = "./operation.js";
       fs.writeFile(path, content, (err, data) => {
-        exec(`node ${path}`, (err, stdout, stderr) => {
+        exec(`node ${path}`, config, (err, stdout, stderr) => {
           if (err) {
             e.reply(String(err.message))
           } else {
