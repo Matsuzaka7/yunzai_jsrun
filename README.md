@@ -10,7 +10,7 @@
   - 将没有任何限制，并且可以导入模块，被恶意使用可能会造成格盘等情况，使用方式与v0.8大致相同，会有略微区别
     - 使用 `## xxx` 运行
   - 并且可以操作 cmd
-    - 使用 `cmd xxx` 运行
+    - 使用 `#cmd xxx` 运行
 - 如无法承担后果请下载 v0.8版本：https://github.com/Matsuzaka7/yunzai_jsrun/tree/v0.8
 - by 松坂砂糖
 
@@ -18,7 +18,7 @@
 
 #### 方式一：直接下载压缩包 *推荐
 
-下载js后复制到 `Yunzai-Bot/plugins/example` 目录下，无需重启可直接使用(前提是装好依赖）
+下载js后复制到 `Yunzai-Bot/plugins/example` 目录下，无需重启可直接使用
 
 ****
 
