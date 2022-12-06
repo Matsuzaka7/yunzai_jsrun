@@ -16,7 +16,7 @@ import fs from "fs";
 
 const config = {
   timeout: 2000,
-  // windowsHide: true
+  // windowsHide: true,
   windowsVerbatimArguments: true
 }
     
@@ -41,21 +41,17 @@ export class jsrun extends plugin {
   }
 
   async run (e) {
-    try {
-      const content = e.message[0].text.split("##")[1]
-      const path = "./operation.js";
-      fs.writeFile(path, content, (err, data) => {
-        exec(`node ${path}`, config, (err, stdout, stderr) => {
-          if (err) {
-            e.reply(String(err.message))
-          } else {
-            e.reply(stdout)
-          }
-        });
-      });
-    } catch(error) {
-      
-    }
+    const content = e.message[0].text.split("##")[1]
+    const path = "./operation.js";
+    await fs.promises.writeFile(path, content)
+    await exec(`node ${path}`, config, (err, stdout, stderr) => {
+      if (err) {
+        e.reply(String(err.message))
+      } else {
+        e.reply(stdout.substr(0, stdout.length - 1))
+      }
+      fs.promises.unlink(path, (err) => {})
+    })
     return true;
   }
 
