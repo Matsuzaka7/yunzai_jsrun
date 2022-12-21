@@ -107,8 +107,10 @@ export class jsrun extends plugin {
         'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'values', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
         'blacklist', '_setting_list', 'plugin', '_e_event_', '_setting_', '_configObjects_', 'Bot',
       ]
-      const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
-      if (_setting_._isShield_ && findlist) return _e_event_.reply('该关键词已禁用：' + findlist, _setting_._message_at_)
+      if (_setting_._isShield_) {
+        const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
+        if (findlist) return _e_event_.reply('该关键词已禁用：' + findlist, _setting_._message_at_)
+      }
       let res = await eval(_text_content_);
       const dataType = (res && res.data) || res;
       if (JSON.stringify(dataType) == _setting_._tempRes_) {
