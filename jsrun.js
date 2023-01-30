@@ -62,6 +62,43 @@ const valueToRegExp = (id, startSymbol ,endSymbol) => {
   }
   return new RegExp(`${startSymbol || '^#'}(${list.join("|")})${endSymbol || '(.*)'}`)
 }
+
+// 超出字数时发送卡片的消息，避免刷屏
+const cardMessage = async (e, stu, isAt = false) => {  
+  let forwardMsg = [
+    {
+      message: e.msg,
+      nickname: e.sender.card || e.sender.nickname,
+      user_id: e.sender.user_id
+    }
+  ]
+
+  if (stu.length > 10000) {
+    forwardMsg.push(
+      {
+        message: `结果过长，将只显示一部分 （${(10000 / stu.length).toFixed(2)}%）`,
+        nickname: Bot.nickname,
+        user_id: Bot.uin
+      }
+    ) 
+  }
+
+  forwardMsg.push(
+      {
+        message: stu.substring(0, 10000) + '...',
+        nickname: Bot.nickname,
+        user_id: Bot.uin
+      }
+    ) 
+  if (e.isGroup) {
+      forwardMsg = await e.group.makeForwardMsg(forwardMsg)
+  } else {
+      forwardMsg = await e.friend.makeForwardMsg(forwardMsg)
+  }
+  //发送消息
+  await e.reply(forwardMsg, isAt)
+}
+
 export class jsrun extends plugin {
   constructor() {
     super({
@@ -95,13 +132,24 @@ export class jsrun extends plugin {
 
   async run (_e_event_) {
     try {
+      // 程序开关
       if (!_setting_._isValve_) return
+      // 超出setting设置时 发送的图片
       let _failds_img_ = segment.image(`https://xiaobai.klizi.cn/API/ce/paa.php?qq=${_e_event_.user_id}`)
+      // 两次执行的间隔，如果小于 _setting_._resTime_ 则不执行本次运算
       if (Date.now() - _setting_._tempTime_ < _setting_._resTime_) return 
+      // 记录最近一次的时间
       _setting_._tempTime_ = Date.now()
+
+      // 获取 ## 之后的文本内容
       const _text_content_ = _e_event_.msg.split("##")[1].trim()
+      // 不响应没有内容的命令
       if (_text_content_ === '') return 
+
+      // 输入内容超出最大输入字数则直接返回图片
       if (_text_content_.length > _setting_._inputMax_length_) return _e_event_.reply(_failds_img_, true)
+
+      // 黑名单列表
       const blacklist = [
         'this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
         'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'values', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
@@ -111,8 +159,10 @@ export class jsrun extends plugin {
         const findlist = blacklist.find(item => _text_content_.toUpperCase().includes(item.toUpperCase()))
         if (findlist) return _e_event_.reply('该关键词已禁用：' + findlist, _setting_._message_at_)
       }
+
       let res = await eval(_text_content_);
       const dataType = (res && res.data) || res;
+      // 如果运行结果与上一次一致。则不发送消息。 在1.5秒后恢复
       if (JSON.stringify(dataType) == _setting_._tempRes_) {
         setTimeout(() => {
           _setting_._tempRes_ = ''
@@ -120,13 +170,17 @@ export class jsrun extends plugin {
         return
       }
       if (dataType === undefined) return await _e_event_.reply(`undefined`, _setting_._message_at_);
+      console.log(1)
       if (!(dataType instanceof Function) && JSON.stringify(dataType).length > _setting_._outptMax_length_) {
-        await _e_event_.reply(`字符长度超出${_setting_._outptMax_length_}，进行截取`);
-        typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`.substring(0, _setting_._outptMax_length_) + '...', _setting_._message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _setting_._outptMax_length_) + '...', _setting_._message_at_);
+        cardMessage(_e_event_, dataType, _setting_._message_at_)
+        // typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`.substring(0, _setting_._outptMax_length_) + '...', _setting_._message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _setting_._outptMax_length_) + '...', _setting_._message_at_);
       } else {
         typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`, _setting_._message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4), _setting_._message_at_)
       }
+      console.log(2)
+
       _setting_._tempRes_ = JSON.stringify(dataType || res)
+      
     } catch(error) {
       await _e_event_.reply(error.message, _setting_._message_at_);
     }
