@@ -11,7 +11,7 @@
     - 使用 `## xxx` 运行
   - 并且可以操作 cmd
     - 使用 `#cmd xxx` 运行
-- 如无法承担后果请下载 v0.8版本：https://github.com/Matsuzaka7/yunzai_jsrun/tree/v0.8
+- 如无法承担后果请下载 v0.9版本：https://github.com/Matsuzaka7/yunzai_jsrun/tree/v0.9
 - by 松坂砂糖
 
 ## 安装
