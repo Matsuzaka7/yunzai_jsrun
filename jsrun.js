@@ -2,7 +2,7 @@ import { segment } from "oicq";
 // import axios from 'axios'
 
 /*
-  jsrun - v0.9* 
+  jsrun - v0.96* 
   该插件在使用时可能会有不可预料的风险，请谨慎使用。包括但不限于：云崽崩溃，内存溢出
   该插件的作用：
       - 提供js运行的环境，可执行js代码
@@ -17,7 +17,7 @@ import { segment } from "oicq";
       - ## 1+1
       - ## Math.random() > 0.5 ? '大于0.5' ： '小于0.5'
       - ## [1, 5, 6, 2].reduce((a,b) => a+b, 0)
-      - ## jsrun   (打开帮助)
+      - # jsrun   (打开帮助)
   免责声明: 使用本插件造成的一切不可预料的后果由 插件使用者自己承担
     - by 砂糖
 */
@@ -65,7 +65,6 @@ const valueToRegExp = (id, startSymbol ,endSymbol) => {
 
 // 超出字数时发送卡片的消息，避免刷屏
 const cardMessage = async (e, stu, maxlength = 10000) => {  
-  stu = JSON.stringify(stu)
   let forwardMsg = [
     {
       message: e.msg,
@@ -152,8 +151,8 @@ export class jsrun extends plugin {
 
       // 黑名单列表
       const blacklist = [
-        'this', 'global', 'eval', 'for', 'while', 'import', 'require', 'export', 'setInterval', 
-        'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'values', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf',
+        'this', 'global', 'eval', 'for', 'while', 'setInterval', 'Function', 'Reflect',
+        'fromCharCode', 'raw', 'codePointAt', 'toLowerCase', 'values', 'values', 'Promise', 'prototype', '__proto__', 'getPrototypeOf', 'setPrototypeOf', 'getOwnPropertyNames',
         'blacklist', '_setting_list', 'plugin', '_e_event_', '_setting_', '_configObjects_', 'Bot',
       ]
       if (_setting_._isShield_) {
@@ -162,23 +161,22 @@ export class jsrun extends plugin {
       }
 
       let res = await eval(_text_content_);
-      const dataType = (res && res.data) || res;
-      // 如果运行结果与上一次一致。则不发送消息。 在1.5秒后恢复
-      if (JSON.stringify(dataType) == _setting_._tempRes_) {
+      const dataType = JSON.stringify((res && res.data) || res, null, 4);
+      // 如果运行结果与上一次一致。则不发送消息。 在0.6秒后恢复
+      if (dataType == _setting_._tempRes_) {
         setTimeout(() => {
           _setting_._tempRes_ = ''
-        }, 1500)
+        }, 600)
         return
       }
       if (dataType === undefined) return await _e_event_.reply(`undefined`, _setting_._message_at_);
-      if (!(dataType instanceof Function) && JSON.stringify(dataType).length > _setting_._outptMax_length_) {
+      if (dataType.length > _setting_._outptMax_length_) {
         cardMessage(_e_event_, dataType)
-        // typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`.substring(0, _setting_._outptMax_length_) + '...', _setting_._message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4).substring(0, _setting_._outptMax_length_) + '...', _setting_._message_at_);
       } else {
-        typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`, _setting_._message_at_) : await _e_event_.reply(JSON.stringify(dataType, null, 4), _setting_._message_at_)
+        typeof dataType !== 'object' ? await _e_event_.reply(`${dataType}`, _setting_._message_at_) : await _e_event_.reply(dataType, _setting_._message_at_)
       }
 
-      _setting_._tempRes_ = JSON.stringify(dataType || res)
+      _setting_._tempRes_ = dataType
       
     } catch(error) {
       await _e_event_.reply(error.message, _setting_._message_at_);
